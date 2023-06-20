@@ -30,7 +30,7 @@ const updateTimeLocation = (weather) => {
   const time = document.getElementById('current-time');
 
   const locName = document.getElementById('loc-name');
-  const locRegion = document.getElementById('loc-region');
+  // const locRegion = document.getElementById('loc-region');
   const locCountry = document.getElementById('loc-country');
 
   const [currentDate, currentTime] = weather.localtime.split(' ');
@@ -39,8 +39,8 @@ const updateTimeLocation = (weather) => {
   date.textContent = `${format(dateTime, 'EEEE, d MMMM yyyy')}`;
   time.textContent = `Local time: ${format(dateTime, 'hh:mm a')}`;
 
-  locName.textContent = weather.name;
-  locRegion.textContent = weather.region;
+  locName.textContent = `${weather.name}, `;
+  // locRegion.textContent = weather.region;
   locCountry.textContent = weather.country;
 };
 
@@ -64,30 +64,37 @@ const updateCurrentWeather = (weather, unit) => {
 
   const perceivedTempText = document.createElement('p');
   perceivedTempText.textContent = unit === 'C' ? `${weather.current.feelslike_c}°C` : `${weather.current.feelslike_f}°F`;
+  perceivedTemp.removeChild(perceivedTemp.lastChild);
   perceivedTemp.appendChild(perceivedTempText);
 
   const humidityText = document.createElement('p');
   humidityText.textContent = `${weather.current.humidity}%`;
+  humidity.removeChild(humidity.lastChild);
   humidity.appendChild(humidityText);
 
   const windText = document.createElement('p');
   windText.textContent = unit === 'C' ? `${weather.current.wind_kph} km/h` : `${weather.current.wind_mph} mph`;
+  wind.removeChild(wind.lastChild);
   wind.appendChild(windText);
 
   const sunriseText = document.createElement('p');
   sunriseText.textContent = `${weather.forecast.forecastday[0].astro.sunrise}`;
+  sunrise.removeChild(sunrise.lastChild);
   sunrise.appendChild(sunriseText);
 
   const sunsetText = document.createElement('p');
   sunsetText.textContent = `${weather.forecast.forecastday[0].astro.sunset}`;
+  sunset.removeChild(sunset.lastChild);
   sunset.appendChild(sunsetText);
 
   const highestTempText = document.createElement('p');
   highestTempText.textContent = unit === 'C' ? `${weather.forecast.forecastday[0].day.maxtemp_c}°C` : `${weather.forecast.forecastday[0].day.maxtemp_f}°F`;
+  highestTemp.removeChild(highestTemp.lastChild);
   highestTemp.appendChild(highestTempText);
 
   const lowestTempText = document.createElement('p');
   lowestTempText.textContent = unit === 'C' ? `${weather.forecast.forecastday[0].day.mintemp_c}°C` : `${weather.forecast.forecastday[0].day.mintemp_f}°F`;
+  lowestTemp.removeChild(lowestTemp.lastChild);
   lowestTemp.appendChild(lowestTempText);
 };
 
@@ -116,6 +123,9 @@ const updateHourlyForecast = (weather, unit) => {
   };
 
   const hourlyForecast = document.getElementById('hourly-forecast');
+  while (hourlyForecast.lastChild) {
+    hourlyForecast.removeChild(hourlyForecast.lastChild);
+  }
 
   for (let i = 0; i < weather.length; i += 1) {
     const forecast = forecastComponent(weather[i]);
@@ -128,6 +138,15 @@ const updateUI = (weather, unit) => {
   updateCurrentWeather(weather, unit);
   updateHourlyForecast(weather.forecast.forecastday[0].hour, unit);
 };
+
+const cities = document.querySelectorAll('.major-cities > ul > li');
+cities.forEach((city) => city.addEventListener('click', () => {
+  console.log(city.textContent);
+  getCurrentWeather(city.textContent).then((weather) => {
+    currentWeather = weather;
+    updateUI(currentWeather, units);
+  });
+}));
 
 getCurrentWeather().then((weather) => {
   currentWeather = weather;
